@@ -5,132 +5,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <style>
-      .pop-up {
-        opacity: 0;
-        position: absolute;
-        border: 1px solid black;
-        border-radius: 1px;
-        line-height: 1.2;
-        width: 200px;
-        pointer-events: none;
-        background-color: white;
-        padding: 10px;
-      }
-
-      body {
-        display: flex;
-      }
-
-      .chart-container {
-        max-width: 1050px;
-        margin: 2rem auto;
-      }
-
-      h1 {
-        text-align: center;
-        margin-bottom: 2rem;
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="chart-container">
-      <h1>US Povery by County in 2018</h1>
-      <svg width="1050px" height="550"></svg>
-      <div class="pop-up"></div>
+    <div class="container">
+    <section>
+        <h1>The Death of the Neighborhood School</h1>
+        <p>In 2001 three charter schools opened their doors for the first time in Saint Louis. By 2007 then Mayor Francis Slay put out an open call to all organizations who were willing to start a charter school in Saint Louis.</p>
+    <section>
+      <div class="chart-container">
+        <svg width="1050px" height="550"></svg>
+        <div class="pop-up"></div>
+      </div>
     </div>
   </body>
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <script src="https://unpkg.com/topojson@3"></script>
-  <script>
-    Promise.all([d3.json("bubble_map2.json")])
-      .then(ready)
-      .catch((err) => {
-        console.log(err);
-      });
-
-    function ready(res) {
-      let raw = res[0];
-      let width = 1050;
-      let height = 500;
-
-      let bubbles = topojson.feature(raw, raw.objects.bubbles);
-      let states = topojson.feature(raw, raw.objects.state);
-
-      let svg = d3.select("body").select("svg");
-
-      let myProjection = d3.geoAlbersUsa().fitSize([width, height], states);
-      let bubbleProjection = d3
-        .geoAlbersUsa()
-        .fitSize([width, height], bubbles);
-
-      let path = d3.geoPath().projection(myProjection);
-      let pathBubbles = d3.geoPath().projection(bubbleProjection);
-
-      let innerlines = topojson.mesh(raw, raw.objects.state, (a, b) => a != b);
-
-      svg
-        .append("g")
-        .selectAll(".states")
-        .data(states.features)
-        .join("path")
-        .attr("d", path)
-        .style("fill", "#ededed")
-        .style("stroke", "#333")
-        .style("stroke-width", "0.5")
-        .style("pointer-events", "none");
-
-      let points = svg
-        .append("g")
-        .selectAll(".bubbles")
-        .data(bubbles.features.filter((d) => d.geometry))
-        .join("circle")
-        .attr("cx", (d) => path.centroid(d)[0])
-        .attr("cy", (d) => path.centroid(d)[1])
-        .attr("id", (d) => `county-${d.properties.GEOID}`)
-        .style("fill", "orange")
-        .style("stroke", "white")
-        .style("stroke-width", "0.25")
-        .style("r", (d) => d.properties.resized);
-
-      let popup = d3.select(".pop-up");
-      points.on("mouseover", (event, d) => {
-        let text = `<strong>${
-          d.properties.NAMELSAD
-        }</strong> had <strong>${d3.format(",")(
-          d.properties.pop_18_in_poverty
-        )}</strong> people living in poverty in 2018`;
-
-        popup
-          .style("opacity", 1)
-          .style("left", event.x - 75 + "px")
-          .style("top", event.y - 125 + "px")
-          .html(text);
-
-        points
-          .style("fill", "orange")
-          .style("stroke", "white")
-          .style("stroke-width", "0.25");
-
-        svg
-          .select(`#county-${d.properties.GEOID}`)
-          .style("stroke-width", "0.5")
-          .style("fill", "purple")
-          .raise();
-      });
-
-      points.on("mouseout", (event, d) => {
-        points
-          .style("fill", "orange")
-          .style("stroke", "white")
-          .style("stroke-width", "0.25")
-          .sort(
-            (a, b) =>
-              a.properties.pop_18_in_poverty < b.properties.pop_18_in_poverty
-          );
-
-        popup.style("opacity", 0);
-      });
-    }
-  </script>
+  <script src="app.js"></script>
 </html>
